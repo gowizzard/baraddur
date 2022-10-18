@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://user-images.githubusercontent.com/30717818/196391817-055e1ccc-c717-400a-ad37-4e184be090e7.svg" width="150">
+<img src="https://user-images.githubusercontent.com/30717818/196425898-fb3ed977-682b-4326-b751-3db149a1c728.svg" width="150">
 
 # Barad-dûr
 

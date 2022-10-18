@@ -5,6 +5,7 @@
 package baraddur
 
 import (
+	"flag"
 	"os"
 	"reflect"
 	"sync"
@@ -38,6 +39,9 @@ func (c *Config) Watch() {
 
 				if !modification.IsZero() && modification.Before(stat.ModTime()) {
 					execute()
+					if flag.Lookup("test.v") != nil {
+						break
+					}
 				}
 				modification = stat.ModTime()
 

@@ -7,7 +7,9 @@
 // works fine in docker projects at least.
 package baraddur
 
-import "time"
+import (
+	"time"
+)
 
 // Config is to store the data of the separate files.
 type Config struct {
@@ -20,5 +22,6 @@ type Config struct {
 type File struct {
 	Path     string
 	Interval time.Duration
+	Fault    func(err error)
 	Execute  func()
 }

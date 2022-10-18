@@ -5,7 +5,6 @@
 package baraddur
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 	"sync"
@@ -16,7 +15,7 @@ import (
 // files via wait groups. When a file receives a new
 // modification time, the function from the configuration struct
 // is executed. Also, can define the interval for each file.
-func (c *Config) Watch() error {
+func (c *Config) Watch() {
 
 	var routines sync.WaitGroup
 	routines.Add(reflect.ValueOf(c.Files).Len())
@@ -25,7 +24,7 @@ func (c *Config) Watch() error {
 
 	for _, value := range c.Files {
 
-		go func(path string, interval time.Duration, execute func()) {
+		go func(path string, interval time.Duration, fault func(err error), execute func()) {
 
 			defer routines.Done()
 
@@ -34,7 +33,7 @@ func (c *Config) Watch() error {
 
 				stat, err := os.Stat(path)
 				if err != nil {
-					fmt.Println(err)
+					fault(err)
 				}
 
 				if !modification.IsZero() && modification.Before(stat.ModTime()) {
@@ -44,10 +43,8 @@ func (c *Config) Watch() error {
 
 			}
 
-		}(value.Path, value.Interval, value.Execute)
+		}(value.Path, value.Interval, value.Fault, value.Execute)
 
 	}
-
-	return nil
 
 }

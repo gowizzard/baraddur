@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://user-images.githubusercontent.com/30717818/196425898-fb3ed977-682b-4326-b751-3db149a1c728.svg" width="150">
+
 # Barad-dûr
 
 </div>

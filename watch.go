@@ -27,19 +27,20 @@ func (c *Config) Watch() {
 
 		go func(path string, interval time.Duration, fault func(err error), execute func()) {
 
+			defer routines.Done()
+
 			var modification time.Time
 			for range time.Tick(interval) {
 
 				stat, err := os.Stat(path)
 				if err != nil {
 					fault(err)
-					routines.Done()
+					break
 				}
 
 				if !modification.IsZero() && modification.Before(stat.ModTime()) {
 					execute()
 					if flag.Lookup("test.v") != nil {
-						routines.Done()
 						break
 					}
 				}

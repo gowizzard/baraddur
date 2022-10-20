@@ -6,7 +6,6 @@ package baraddur_test
 
 import (
 	"github.com/gowizzard/baraddur"
-	"log"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -19,6 +18,7 @@ import (
 func TestWatch(t *testing.T) {
 
 	tests := []struct {
+		name  string
 		files []struct {
 			path   string
 			data   []byte
@@ -29,6 +29,7 @@ func TestWatch(t *testing.T) {
 		config baraddur.Config
 	}{
 		{
+			name: "FILES=1",
 			files: []struct {
 				path   string
 				data   []byte
@@ -60,6 +61,7 @@ func TestWatch(t *testing.T) {
 			},
 		},
 		{
+			name: "FILES=2",
 			files: []struct {
 				path   string
 				data   []byte
@@ -108,6 +110,7 @@ func TestWatch(t *testing.T) {
 			},
 		},
 		{
+			name: "FILES=3",
 			files: []struct {
 				path   string
 				data   []byte
@@ -176,33 +179,37 @@ func TestWatch(t *testing.T) {
 
 	for _, value := range tests {
 
-		for _, value := range value.files {
-			err := os.WriteFile(value.path, value.data, value.perm)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
+		t.Run(value.name, func(t *testing.T) {
 
-		var routines sync.WaitGroup
-		routines.Add(reflect.ValueOf(value.files).Len() + 1)
-
-		go func(c baraddur.Config) {
-			defer routines.Done()
-			c.Watch()
-		}(value.config)
-
-		for _, value := range value.files {
-			go func(wait time.Duration, path string, update []byte, perm os.FileMode) {
-				defer routines.Done()
-				time.Sleep(wait)
-				err := os.WriteFile(path, update, perm)
+			for _, value := range value.files {
+				err := os.WriteFile(value.path, value.data, value.perm)
 				if err != nil {
-					log.Fatal(err)
+					t.Error(err)
 				}
-			}(value.wait, value.path, value.update, value.perm)
-		}
+			}
 
-		routines.Wait()
+			var routines sync.WaitGroup
+			routines.Add(reflect.ValueOf(value.files).Len() + 1)
+
+			go func(c baraddur.Config) {
+				defer routines.Done()
+				c.Watch()
+			}(value.config)
+
+			for _, value := range value.files {
+				go func(wait time.Duration, path string, update []byte, perm os.FileMode) {
+					defer routines.Done()
+					time.Sleep(wait)
+					err := os.WriteFile(path, update, perm)
+					if err != nil {
+						t.Error(err)
+					}
+				}(value.wait, value.path, value.update, value.perm)
+			}
+
+			routines.Wait()
+
+		})
 
 	}
 
